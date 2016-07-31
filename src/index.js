@@ -20,7 +20,7 @@ let menuTemplate = [{
       openFolderChoiceDialog()
     }},
     { type: 'separator' },
-    {label: 'Quite', accelerator: 'CmdOrCtrl+Q', click: function() { app.quit(); }}
+    {label: 'Quit', accelerator: 'CmdOrCtrl+Q', click: function() { app.quit(); }}
   ]
 }]
 let menu = Menu.buildFromTemplate(menuTemplate)
@@ -30,7 +30,7 @@ function createWindow() {
   win = new BrowserWindow({width: 800, height: 600});
 
   win.loadURL(`file://${__dirname}/index.html`);
-  if (process.env.NODE_ENV !== 'prod') {
+  if (process.env.NODE_ENV === 'dev') {
     win.webContents.openDevTools();
   }
   win.on('closed', () => {
@@ -75,7 +75,7 @@ app.on('activate', () => {
 });
 
 app.on('will-quit', (event) => {
-  if (process.env.NODE_ENV !== 'prod') {
+  if (process.env.NODE_ENV === 'dev') {
     win.webContents.send(C.ipc.clearStorage)
   }
 })
