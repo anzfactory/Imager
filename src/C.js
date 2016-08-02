@@ -10,5 +10,8 @@ module.exports = {
   },
   storage: {
     directoryPath: 'path'
+  },
+  obs: {
+    changedDirectoryPath: 'changedDirectoryPath'
   }
 }
