@@ -4,6 +4,8 @@
 const self = this
 const C = require('./C.js')
 const fs = require('fs')
+const storage = require('./util/storage.js')
+
 const animationList = [
   ['fadeOut', 'fadeIn'],
   ['slideOutUp', 'slideInUp'],
@@ -19,16 +21,6 @@ this.timeoutId = undefined
 this.animationClass = undefined
 
 this.on('mount', function() {
-  let directoryPath = localStorage.getItem(C.storage.directoryPath) || C.path.defaultImage
-  let directoryFiles = fs.readdirSync(directoryPath)
-  let images = []
-  directoryFiles.forEach(function(fileName) {
-    if (/(png|jpg|jpeg|gif)$/i.exec(fileName)) {
-      images.push(directoryPath + '/' + fileName)
-    }
-  })
-
-  self.images = images
   self.loadImage(false)
   self.changer()
 })
@@ -48,7 +40,7 @@ this.changer = function() {
 
 this.loadImage = function(withAnimate) {
   let _load = function() {
-    let img = self.images.random()
+    let img = storage.randomImage()
     self.tileItem.style.background = `url(${img}) no-repeat #000`
     self.tileItem.style.backgroundPosition = 'center'
     self.tileItem.style.backgroundSize = 'cover'

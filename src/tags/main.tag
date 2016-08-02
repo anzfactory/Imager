@@ -8,6 +8,8 @@ const ipcRenderer = electron.ipcRenderer;
 const C = require('./C.js')
 const fs = require('fs')
 const self = this
+const storage = require('./util/storage.js')
+
 this.mountedTemplate = null
 this.timeoutId = undefined
 
@@ -29,8 +31,7 @@ if (!localStorage.getItem(C.storage.directoryPath)) {
 
 function setupTemplates() {
   self.mountedTemplate = null
-  let files = fs.readdirSync(localStorage.getItem(C.storage.directoryPath))
-  let border = Math.ceil(files.length * 0.3)
+  let border = Math.ceil(storage.imageCount() * 0.3)
   useTemplates = []
   for (let i = 0; i < templates.length; i++) {
     if (border > i) {
@@ -66,6 +67,7 @@ this.on('mount', function() {
 
 ipcRenderer.on(C.ipc.selectedDirectory, function(sender, directoryPath) {
   localStorage.setItem(C.storage.directoryPath, directoryPath)
+  riot.obs.trigger(C.obs.changedDirectoryPath)
   setupTemplates()
   // マウントしなおして更新をうながす
   this.mountedTemplate = useTemplates.random()
