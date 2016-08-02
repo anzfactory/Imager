@@ -2,6 +2,8 @@ riot.tag2('im-tile-item', '<div name="tileItem" class="tile-item animated"></div
 const self = this
 const C = require('./C.js')
 const fs = require('fs')
+const storage = require('./util/storage.js')
+
 const animationList = [
   ['fadeOut', 'fadeIn'],
   ['slideOutUp', 'slideInUp'],
@@ -17,16 +19,6 @@ this.timeoutId = undefined
 this.animationClass = undefined
 
 this.on('mount', function() {
-  let directoryPath = localStorage.getItem(C.storage.directoryPath) || C.path.defaultImage
-  let directoryFiles = fs.readdirSync(directoryPath)
-  let images = []
-  directoryFiles.forEach(function(fileName) {
-    if (/(png|jpg|jpeg|gif)$/i.exec(fileName)) {
-      images.push(directoryPath + '/' + fileName)
-    }
-  })
-
-  self.images = images
   self.loadImage(false)
   self.changer()
 })
@@ -46,7 +38,7 @@ this.changer = function() {
 
 this.loadImage = function(withAnimate) {
   let _load = function() {
-    let img = self.images.random()
+    let img = storage.randomImage()
     self.tileItem.style.background = `url(${img}) no-repeat #000`
     self.tileItem.style.backgroundPosition = 'center'
     self.tileItem.style.backgroundSize = 'cover'
@@ -76,6 +68,8 @@ const ipcRenderer = electron.ipcRenderer;
 const C = require('./C.js')
 const fs = require('fs')
 const self = this
+const storage = require('./util/storage.js')
+
 this.mountedTemplate = null
 this.timeoutId = undefined
 
@@ -97,8 +91,7 @@ if (!localStorage.getItem(C.storage.directoryPath)) {
 
 function setupTemplates() {
   self.mountedTemplate = null
-  let files = fs.readdirSync(localStorage.getItem(C.storage.directoryPath))
-  let border = Math.ceil(files.length * 0.3)
+  let border = Math.ceil(storage.imageCount() * 0.3)
   useTemplates = []
   for (let i = 0; i < templates.length; i++) {
     if (border > i) {
@@ -134,6 +127,7 @@ this.on('mount', function() {
 
 ipcRenderer.on(C.ipc.selectedDirectory, function(sender, directoryPath) {
   localStorage.setItem(C.storage.directoryPath, directoryPath)
+  riot.obs.trigger(C.obs.changedDirectoryPath)
   setupTemplates()
 
   this.mountedTemplate = useTemplates.random()
